@@ -14,4 +14,4 @@ route.get("/courses" , getCourses);
 route.get("/:courseId" , getCourseDetails)
 
 
-export default route;
+export default route; 
