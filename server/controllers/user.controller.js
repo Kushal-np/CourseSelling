@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import jwt from 'jsonwebtoken'
 export const signUp = async (req, res) => {
   try {
     // Taking the values of firstName,lastName,email,password from the frontend, that is also the body
@@ -67,8 +68,9 @@ export const signUp = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
-  const { email, password } = req.body;
+  
   try {
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -80,6 +82,18 @@ export const signIn = async (req, res) => {
     if (!isPasswordCorrect) {
       return res.status(401).json({ errors: "Invalid credentials" });
     }
+
+    //jwt code here 
+
+    const token = jwt.sign({
+        id:user._id,
+    },process.env.JWT_SECRET_KEY);
+    res.cookie("jwt",token)
+    res.status(201).json({
+        message:"Login successfull",
+        user,
+        token
+    })
   } catch (error) {
     res.status(500).json({ errors: "error in login" });
     console.log("error in login", error);
