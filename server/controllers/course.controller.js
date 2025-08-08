@@ -61,39 +61,71 @@ export const createCourse = async (req, res) => {
     }
 };
 
+export const updateCourse = async (req, res) => {
+  const { courseId } = req.params;
+  const { title, description, price, image } = req.body;
 
-export const updateCourse = async(req,res) =>{
-    // courseid is the id which is given through the url parameters like www.example.com/updateCourse/?a=b  same as here we are using the courseId
+  try {
+    // Check if course exists first
+    const courseExists = await Course.findById(courseId);
+    if (!courseExists) {
+      return res.status(404).json({ errors: "Course not found" });
+    }
+
+    // Prepare image object only if valid, else skip update for image
+    let imageUpdate;
+    if (image && image.public_id && image.url) {
+      imageUpdate = {
+        public_id: image.public_id,
+        url: image.url,
+      };
+    }
+
+    // Build update object dynamically
+    const updateData = {
+      title,
+      description,
+      price,
+    };
+    if (imageUpdate) {
+      updateData.image = imageUpdate;
+    }
+
+    // Update the course
+    const updatedCourse = await Course.findByIdAndUpdate(courseId, updateData, {
+      new: true, // return the updated document
+      runValidators: true, // enforce schema validations
+    });
+
+    res.status(200).json({
+      message: "Course updated successfully",
+      course: updatedCourse,
+    });
+  } catch (error) {
+    console.error("Error updating course:", error);
+    res.status(500).json({ errors: "Error in course updating" });
+  }
+};
+
+export const deleteCourse = async(req , res) =>{
     const {courseId} = req.params;
-    // these credentials are the updation information to be entered , which will then take it's effect after only update , for until it is changed again 
-    const {title,description,price,image} = req.body;
-    //try and catch block for quality handling of success anf failure of the code
     try{
-        // the course varaible will get me the course with the course id , which is entered in the URL parameter , and if the id isn't found , which is basically an error the catch() block will be invoked
-        const course = await Course.updateOne({_id:courseId,},{
-            title,
-            description,
-            price,
-            image:{
-                //if image exists . then the public_id 
-                public_id: image?.public_id || course.image.public_id,
-                //if image is exising , then url of the image , is the url of image
-                url: image?.url || course.image.url
-            }
+        const course = await Course.findByIdAndDelete({
+            _id: courseId,
         })
-        res.status(200).json({
-            message:"Course updated successfully"
+        if(!course){
+            return res.status(404).json({
+                error:"Course not found"
+            })
+        }
+        return res.status(200).json({
+            message:"Course deleted successfully"
         })
-        
     }
-    //error handling block 
     catch(error){
-        //internal server error for every possible failure of the above try block
-        res.status(500).json({
+        res.json({
             success:false,
-            message:"Internal server error"
+            message:"Error while deleting course"
         })
     }
-}
-
-
+};
