@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCourse, deleteCourse, getCourseDetails, getCourses, updateCourse } from '../controllers/course.controller.js';
+import { buyCourses, createCourse, deleteCourse, getCourseDetails, getCourses, updateCourse } from '../controllers/course.controller.js';
 const route = express.Router();
 
 //route for post creation
@@ -12,6 +12,8 @@ route.delete("/delete/:courseId" , deleteCourse)
 route.get("/courses" , getCourses);
 //route for course details 
 route.get("/:courseId" , getCourseDetails)
+
+route.post("/buy/:courseId", buyCourses)
 
 
 export default route; 
