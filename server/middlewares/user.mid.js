@@ -17,3 +17,4 @@ function userMiddleware(req,res,next){
         console.log("Invalid token or expired token")
     }
 }
+export default userMiddleware;
