@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-
+import dotenv from 'dotenv'
 const purchaseSchema = new mongoose.Schema({
     userId:{
         type:mongoose.Types.ObjectId,
